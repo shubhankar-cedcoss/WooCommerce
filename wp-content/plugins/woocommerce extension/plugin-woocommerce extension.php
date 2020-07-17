@@ -111,6 +111,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		exit;
 	}
 
+
 	/**
 	 * Define constants
 	 */
@@ -121,15 +122,27 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		define( 'TPWCP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
 	}
 
-	require( TPWCP_PLUGIN_DIR_PATH . '/classes/class-tpwcp-admin.php' );
+	require TPWCP_PLUGIN_DIR_PATH . '/classes/class-tpwcp-admin.php';
+
+	/**
+	 * To show custom field on front end
+	 */
+	if ( ! defined( 'TPWCP_PLUGIN_VERSION' ) ) {
+		define( 'TPWCP_PLUGIN_VERSION', '1.0.0' );
+	}
+	if ( ! defined( 'TPWCP_PLUGIN_DIR_PATH' ) ) {
+		define( 'TPWCP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
+	}
+
+	require TPWCP_PLUGIN_DIR_PATH . '/classes/class-tpwcp-front.php';
 
 	/**
 	 * Start the plugin.
 	 */
 	function tpwcp_init() {
 		if ( is_admin() ) {
-			$TPWCP = new TPWCP_Admin();
-			$TPWCP->init();
+			$t_p_w_c_p = new TPWCP_Admin();
+			$t_p_w_c_p->init();
 		}
 	}
 	add_action( 'plugins_loaded', 'tpwcp_init' );
@@ -144,7 +157,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$tax_query[] = array(
 			'taxonomy' => 'product_cat',
 			'field'    => 'slug',
-			'terms'    => array( 'electronics' ), // Don't display products in the clothing category on the shop page.
+			// 'terms'    => array( 'electronics' ), // Don't display products in the clothing category on the shop page.
 			'operator' => 'NOT IN',
 		);
 
@@ -153,6 +166,144 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 	add_action( 'woocommerce_product_query', 'custom_pre_get_posts_query' );
 
+	/**
+	 * Override loop template and show quantities next to add to cart buttons
+	 */
+	function quantity_inputs_for_woocommerce_loop_add_to_cart_link( $html, $product ) {
+		if ( $product && $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() && ! $product->is_sold_individually() ) {
+			$html  = '<form action="' . esc_url( $product->add_to_cart_url() ) . '" class="cart" method="post" enctype="multipart/form-data">';
+			$html .= woocommerce_quantity_input( array(), $product, false );
+			$html .= '<button type="submit" class="button alt">' . esc_html( $product->add_to_cart_text() ) . '</button>';
+			$html .= '</form>';
+		}
+		return $html;
+	}
+	add_filter( 'woocommerce_loop_add_to_cart_link', 'quantity_inputs_for_woocommerce_loop_add_to_cart_link', 10, 2 );
+
+	/**
+	 * Change the default state and country on the checkout page
+	 */
+	function change_default_checkout_country() {
+		return 'IN'; // country code.
+	}
+
+	function change_default_checkout_state() {
+		return 'UP'; // state code.
+	}
+	add_filter( 'default_checkout_billing_country', 'change_default_checkout_country' );
+	add_filter( 'default_checkout_billing_state', 'change_default_checkout_state' );
+
+	/**
+	 * Add custom sorting options (asc/desc)
+	 */
+	function custom_woocommerce_get_catalog_ordering_args( $args ) {
+		$orderby_value = isset( $_GET['orderby'] ) ? wc_clean( sanitize_text_field( wp_unslash( $_GET['orderby'] ) ) ) : apply_filters( 'woocommerce_default_catalog_orderby', get_option( 'woocommerce_default_catalog_orderby' ) );
+		if ( 'random_list' === $orderby_value ) {
+			$args['orderby']  = 'rand';
+			$args['order']    = '';
+			$args['meta_key'] = '';
+		}
+		return $args;
+	}
+	add_filter( 'woocommerce_get_catalog_ordering_args', 'custom_woocommerce_get_catalog_ordering_args' );
+
+	/**
+	 * Undocumented function
+	 *
+	 * @param [type] $sortby
+	 * @return void
+	 */
+	function custom_woocommerce_catalog_orderby( $sortby ) {
+		$sortby['random_list'] = 'Random';
+		return $sortby;
+	}
+	add_filter( 'woocommerce_default_catalog_orderby_options', 'custom_woocommerce_catalog_orderby' );
+	add_filter( 'woocommerce_catalog_orderby', 'custom_woocommerce_catalog_orderby' );
+
+	/**
+	 * Remove product data tabs
+	 */
+	// add_filter( 'woocommerce_product_tabs', 'woo_remove_product_tabs', 98 );.
+
+	function woo_remove_product_tabs( $tabs ) {
+
+		unset( $tabs['description'] );      // Remove the description tab.
+		unset( $tabs['reviews'] ); // Remove the reviews tab.
+		unset( $tabs['additional_information'] ); // Remove the additional information tab.
+
+		return $tabs;
+	}
+
+	/**
+	 * Remove product content based on category
+	 * Removes the image of product on the single product page
+	 */
+	function remove_product_content() {
+		// If a product in the 'shoes' category is being viewed...
+		// if ( is_product() && has_term( 'shoes', 'product_cat' ) ) {
+			// ... Remove the images.
+			// remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20 );
+			// For a full list of what can be removed please see woocommerce-hooks.php.
+		// }.
+	}
+	add_action( 'wp', 'remove_product_content' );
+
+	/**
+	 * Add a 1% surcharge to your cart / checkout
+	 * change the $percentage to set the surcharge to a value to suit
+	 */
+	function woocommerce_custom_surcharge() {
+		global $woocommerce;
+
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			return;
+		}
+		$percentage = 0.01;
+		$surcharge  = ( $woocommerce->cart->cart_contents_total + $woocommerce->cart->shipping_total ) * $percentage;
+		$woocommerce->cart->add_fee( 'Surcharge', $surcharge, true, '' );
+
+	}
+	add_action( 'woocommerce_cart_calculate_fees', 'woocommerce_custom_surcharge' );
+
+	/**
+	 * Add a message above the login / register form on my-account page
+	 */
+	function jk_login_message() {
+		if ( get_option( 'woocommerce_enable_myaccount_registration' ) === 'yes' ) {
+			?>
+			<div class="woocommerce-info">
+				<p><?php esc_html_e( 'Returning customers login. New users register for next time so you can:' ); ?></p>
+				<ul>
+					<li><?php esc_html_e( 'View your order history' ); ?></li>
+					<li><?php esc_html_e( 'Check on your orders' ); ?></li>
+					<li><?php esc_html_e( 'Edit your addresses' ); ?></li>
+					<li><?php esc_html_e( 'Change your password' ); ?></li>
+				</ul>
+			</div>
+			<?php
+		}
+	}
+	add_action( 'woocommerce_before_customer_login_form', 'jk_login_message' );
+
+	/**
+	 * Apply a coupon for minimum cart total
+	 */
+	function add_coupon_notice() {
+
+			$cart_total     = WC()->cart->get_subtotal();
+			$minimum_amount = 50;
+			$currency_code  = get_woocommerce_currency();
+			wc_clear_notices();
+
+		if ( $cart_total < $minimum_amount ) {
+				WC()->cart->remove_coupon( 'FIRST50' );
+				wc_print_notice( "Get 30% off if you spend more than $minimum_amount $currency_code!", 'notice' );
+		} else {
+				WC()->cart->apply_coupon( 'FIRST50' );
+				wc_print_notice( 'You just got 50% off your order!', 'notice' );
+		}
+			wc_clear_notices();
+	}
+	add_action( 'woocommerce_before_cart', 'add_coupon_notice' );
+	add_action( 'woocommerce_before_checkout_form', 'add_coupon_notice' );
 }
-
-
