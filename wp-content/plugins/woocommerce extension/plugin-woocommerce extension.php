@@ -22,6 +22,9 @@
  */
 
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+	/**
+	 * WC_Settings_Tab_Demo
+	 */
 	class WC_Settings_Tab_Demo {
 
 		/**
@@ -228,7 +231,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	 * Undocumented function
 	 *
 	 * @param [string] $sortby is a string .
-	 * @return void
+	 * @return array
 	 */
 	function custom_woocommerce_catalog_orderby( $sortby ) {
 		$sortby['random_list'] = 'Random';
@@ -281,7 +284,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function woo_rename_tabs( $tabs ) {
 
 		$tabs['description']['title']            = __( 'More Information' );  // Rename the description tab.
-		$tabs['reviews']['title'] 				 = __( 'Ratings' );	 // Rename the reviews tab.
+		$tabs['reviews']['title']                = __( 'Ratings' );// Rename the reviews tab.
 		$tabs['additional_information']['title'] = __( 'Product Data' ); // Rename the additional information tab.
 
 		return $tabs;
@@ -332,7 +335,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			// For a full list of what can be removed please see woocommerce-hooks.php.
 		}
 	}
-	//add_action( 'wp', 'remove_product_content' );
+	// add_action( 'wp', 'remove_product_content' );.
 
 	/**
 	 * Add a 1% surcharge to your cart / checkout
@@ -405,10 +408,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 		$args['max_value'] = 80; // Maximum value.
 		$args['min_value'] = 1;  // Minimum value.
-		$args['step'] 	   = 1;  // Quantity steps.
+		$args['step']      = 1;  // Quantity steps.
 		return $args;
 	}
-	add_filter( 'woocommerce_quantity_input_args', 'jk_woocommerce_quantity_input_args', 10, 2 ); // Simple products
+	add_filter( 'woocommerce_quantity_input_args', 'jk_woocommerce_quantity_input_args', 10, 2 ); // Simple products.
 	/**
 	 * Adjust the quantity input values
 	 *
@@ -419,7 +422,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$args['min_qty'] = 4;  // Minimum value (variations).
 		return $args;
 	}
-	add_filter( 'woocommerce_available_variation', 'jk_woocommerce_available_variation' ); // Variations
+	add_filter( 'woocommerce_available_variation', 'jk_woocommerce_available_variation' ); // Variations.
 
 	/**
 	 * Send an email each time an order with coupon(s) is completed
@@ -430,7 +433,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function woo_email_order_coupons( $order_id ) {
 		$order = new WC_Order( $order_id );
 
-		if ( $order->get_used_coupons() ) {
+		if ( $order->get_coupon_codes()() ) {
 
 			$to      = 'youremail@yourcompany.com';
 			$subject = 'New Order Completed';
@@ -440,7 +443,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			$message .= 'Order ID: ' . $order_id . '\n';
 			$message .= 'Coupons used:\n';
 
-			foreach ( $order->get_used_coupons() as $coupon ) {
+			foreach ( $order->get_coupon_codes()() as $coupon ) {
 				$message .= $coupon . '\n';
 			}
 			@wp_mail( $to, $subject, $message, $headers );
@@ -452,7 +455,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	 * Goes in theme functions.php or a custom plugin
 	 *
 	 * @param [string] $subject is a string .
-	 * @param [string] $order is a string .
+	 * @param [string] $order is a string
 	 *
 	 * Subject filters:
 	 *   woocommerce_email_subject_new_order
@@ -464,7 +467,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	 *   woocommerce_email_subject_no_stock
 	 *   woocommerce_email_subject_backorder
 	 *   woocommerce_email_subject_customer_new_account
-	 *   woocommerce_email_subject_customer_invoice_paid
+	 *   woocommerce_email_subject_customer_invoice_paid.
 	 */
 	function change_admin_email_subject( $subject, $order ) {
 		global $woocommerce;
@@ -579,7 +582,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 		}
 	}
-	//add_action( 'template_redirect', 'add_product_to_cart' );
+	// add_action( 'template_redirect', 'add_product_to_cart' );.
+
+	/**
+	 * Allow customers to access wp-admin
+	 */
+	add_filter( 'woocommerce_prevent_admin_access', '__return_false' );
+	add_filter( 'woocommerce_disable_admin_bar', '__return_false' );
 
 	/**
 	 * Show product weight on archive pages(Shop page)
@@ -590,7 +599,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$weight = $product->get_weight();
 
 		if ( $product->has_weight() ) {
-			echo '<div class="product-meta"><span class="product-meta-label">Weight: </span>' . $weight . get_option('woocommerce_weight_unit') . '</div></br>';
+			echo '<div class="product-meta"><span class="product-meta-label">Weight: </span>' . $weight . get_option( 'woocommerce_weight_unit' ) . '</div></br>';
 		}
 	}
 	add_action( 'woocommerce_after_shop_loop_item', 'rs_show_weights', 9 );
@@ -627,12 +636,17 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_action( 'woocommerce_created_customer', 'woocommerce_created_customer_admin_notification' );
 
 	/**
+	 * Trim zeros in price decimals
+	 */
+	add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
+
+	/**
 	 * Display product attribute archive links
 	 */
 	function wc_show_attribute_links() {
 		// if you'd like to show it on archive page, replace "woocommerce_product_meta_end" with "woocommerce_shop_loop_item_title".
 		global $post;
-		$attribute_names = array( '<ATTRIBUTE_NAME>', '<ANOTHER_ATTRIBUTE_NAME>' ); // Add attribute names here and remember to add the pa_ prefix to the attribute name
+		$attribute_names = array( '<ATTRIBUTE_NAME>', '<ANOTHER_ATTRIBUTE_NAME>' ); // Add attribute names here and remember to add the pa_ prefix to the attribute name.
 
 		foreach ( $attribute_names as $attribute_name ) {
 			$taxonomy = get_taxonomy( $attribute_name );
@@ -644,7 +658,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				if ( ! empty( $terms ) ) {
 					foreach ( $terms as $term ) {
 						$archive_link = get_term_link( $term->slug, $attribute_name );
-						$full_line    = '<a href="' . $archive_link . '">'. $term->name . '</a>';
+						$full_line    = '<a href="' . $archive_link . '">' . $term->name . '</a>';
 						array_push( $terms_array, $full_line );
 					}
 					echo $taxonomy->labels->name . ' ' . implode( $terms_array, ', ' );
@@ -653,11 +667,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 	}
 	add_action( 'woocommerce_shop_loop_item_title', 'wc_show_attribute_links' );
-
-	/**
-	 * Trim zeros in price decimals
-	 */
-	add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 
 	/**
 	 * Show product dimensions on archive pages for WC 3+
@@ -687,7 +696,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 		return $states;
 	}
-	//add_filter( 'woocommerce_states', 'custom_woocommerce_states' );
+	// add_filter( 'woocommerce_states', 'custom_woocommerce_states' );.
 
 
 	/**
@@ -777,4 +786,227 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 	add_action( 'woocommerce_checkout_process', 'wc_minimum_order_amount' );
 	add_action( 'woocommerce_before_cart', 'wc_minimum_order_amount' );
+
+
+	/**
+	 * Change number of products that are displayed per page (shop page)
+	 *
+	 * @param [string] $cols is a string .
+	 */
+	function new_loop_shop_per_page( $cols ) {
+		// $cols contains the current number of products per page based on the value stored on Options -> Reading
+		// Return the number of products you wanna show per page.
+		$cols = 4;
+		return $cols;
+	}
+	add_filter( 'loop_shop_per_page', 'new_loop_shop_per_page', 20 );
+
+	/**
+	 * Change number or products per row to 3
+	 */
+	if ( ! function_exists( 'loop_columns' ) ) {
+		/**
+		 * Loop column
+		 */
+		function loop_columns() {
+			return 2; // 3 products per row
+		}
+	}
+	add_filter( 'loop_shop_columns', 'loop_columns', 999 );
+
+	/**
+	 * Disable all stylesheets by WooCommerce
+	 */
+	add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
+
+	/**
+	 * Hide Add to cart button for out of stock items .
+	 */
+	if ( ! function_exists( 'woocommerce_template_loop_add_to_cart' ) ) {
+		/**
+		 * Woocommerce_template_loop_add_to_cart
+		 *
+		 * @return void
+		 */
+		function woocommerce_template_loop_add_to_cart() {
+			global $product;
+			if ( ! $product->is_in_stock() || ! $product->is_purchasable() ) {
+				return;
+			}
+			wc_get_template( 'loop/add-to-cart.php' );
+		}
+	}
+
+	/**
+	 * Change number of related products output
+	 */
+	function woo_related_products_limit() {
+		global $product;
+
+		$args['posts_per_page'] = 3;
+		return $args;
+	}
+	add_filter( 'woocommerce_output_related_products_args', 'jk_related_products_args', 20 );
+	/**
+	 * Jk_related_products_args
+	 *
+	 * @param [string] $args is a string .
+	 */
+	function jk_related_products_args( $args ) {
+		$args['posts_per_page'] = 4; // 4 related products
+		$args['columns']        = 2; // arranged in 2 columns.
+		return $args;
+	}
+
+	/**
+	 * Change number of upsells output
+	 *
+	 * @param [string] $args is a string .
+	 */
+	function wc_change_number_related_products( $args ) {
+		$args['posts_per_page'] = 2;
+		$args['columns']        = 4; // change number of upsells here.
+		return $args;
+	}
+	add_filter( 'woocommerce_upsell_display_args', 'wc_change_number_related_products', 20 );
+
+	/**
+	 * Change the placeholder image
+	 *
+	 * @param [string] $src is a string .
+	 */
+	function custom_woocommerce_placeholder_img_src( $src ) {
+		$upload_dir = wp_upload_dir();
+		$uploads    = untrailingslashit( $upload_dir['baseurl'] );
+		// replace with path to your image.
+		$src = $uploads . '/woocommerce-placeholder.png';
+
+		return $src;
+	}
+	add_filter( 'woocommerce_placeholder_img_src', 'custom_woocommerce_placeholder_img_src' );
+
+	/**
+	 * Show product categories in Woorramework breadcrumbs
+	 */
+	// Get breadcrumbs on product pages that read: Home > Shop > Product category > Product Name.
+	add_filter( 'woo_breadcrumbs_trail', 'woo_custom_breadcrumbs_trail_add_product_categories', 20 );
+
+	/**
+	 * Woo_custom_breadcrumbs_trail_add_product_categories
+	 *
+	 * @param [string] $trail is a string .
+	 */
+	function woo_custom_breadcrumbs_trail_add_product_categories( $trail ) {
+		if ( ( get_post_type() === 'product' ) && is_singular() ) {
+			global $post;
+
+			$taxonomy = 'product_cat';
+
+			$terms = get_the_terms( $post->ID, $taxonomy );
+			$links = array();
+
+			if ( $terms && ! is_wp_error( $terms ) ) {
+				$count = 0;
+				foreach ( $terms as $c ) {
+					$count++;
+					if ( $count > 1 ) {
+						continue;
+					}
+					$parents = woo_get_term_parents( $c->term_id, $taxonomy, true, ', ', $c->name, array() );
+
+					if ( '' !== $parents && ! is_wp_error( $parents ) ) {
+						$parents_arr = explode( ', ', $parents );
+
+						foreach ( $parents_arr as $p ) {
+							if ( '' !== $p ) {
+								$links[] = $p;
+							}
+						}
+					}
+				}
+
+				// Add the trail back on to the end.
+				// $links[] = $trail['trail_end'];.
+				$trail_end = get_the_title( $post->ID );
+
+				// Add the new links, and the original trail's end, back into the trail.
+				array_splice( $trail, 2, count( $trail ) - 1, $links );
+
+				$trail['trail_end'] = $trail_end;
+			}
+		}
+
+		return $trail;
+	}
+
+	/**
+	 * Retrieve term parents with separator.
+	 *
+	 * @param int $id Term ID.
+	 * @param string $taxonomy.
+	 * @param bool $link Optional, default is false. Whether to format with link.
+	 * @param string $separator Optional, default is '/'. How to separate terms.
+	 * @param bool $nicename Optional, default is false. Whether to use nice name for display.
+	 * @param array $visited Optional. Already linked to terms to prevent duplicates.
+	 * @return string
+	 */
+
+	if ( ! function_exists( 'woo_get_term_parents' ) ) {
+		/**
+		 * Woo_get_term_parents
+		 *
+		 * @param int     $id Term ID.
+		 * @param string  $taxonomy is used to store taxonomies.
+		 * @param boolean $link is used to store links.
+		 * @param string  $separator is used to store separator.
+		 * @param boolean $nicename is used to store nicename.
+		 * @param array   $visited is used to store visited.
+		 * @return $parent
+		 */
+		function woo_get_term_parents( $id, $taxonomy, $link = false, $separator = '/', $nicename = false, $visited = array() ) {
+			$chain  = '';
+			$parent = &get_term( $id, $taxonomy );
+			if ( is_wp_error( $parent ) ) {
+				return $parent;
+			}
+			if ( $nicename ) {
+				$name = $parent->slug;
+			} else {
+				$name = $parent->name;
+			}
+
+			if ( $parent->parent && ( $parent->parent !== $parent->term_id ) && ! in_array( $parent->parent, $visited ) ) {
+				$visited[] = $parent->parent;
+				$chain .= woo_get_term_parents( $parent->parent, $taxonomy, $link, $separator, $nicename, $visited );
+			}
+
+			if ( $link ) {
+				$chain .= '<a href="' . get_term_link( $parent, $taxonomy ) . '" title="' . esc_attr( sprintf( __( 'View all posts in %s' ), $parent->name ) ) . '">' . $parent->name . '</a>' . $separator;
+			} else {
+				$chain .= $name . $separator;
+			}
+			return $chain;
+		}
+	}
+
+	/**
+	 * Remove related products output
+	 */
+	remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );
+
+	/**
+	 * Check if WooCommerce is activated
+	 */
+	if ( ! function_exists( 'is_woocommerce_activated' ) ) {
+		/**
+		 * Is_woocommerce_activated
+		 */
+		function is_woocommerce_activated() {
+			if ( class_exists( 'woocommerce' ) ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 }
