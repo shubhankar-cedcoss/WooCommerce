@@ -23,99 +23,6 @@
 
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 	/**
-	 * WC_Settings_Tab_Demo
-	 */
-	class WC_Settings_Tab_Demo {
-
-		/**
-		 * Bootstraps the class and hooks required actions & filters.
-		 */
-		public static function init() {
-			add_filter( 'woocommerce_settings_tabs_array', __CLASS__ . '::add_settings_tab', 50 );
-			add_action( 'woocommerce_settings_tabs_settings_tab_demo', __CLASS__ . '::settings_tab' );
-			add_action( 'woocommerce_update_options_settings_tab_demo', __CLASS__ . '::update_settings' );
-		}
-
-
-		/**
-		 * Add a new settings tab to the WooCommerce settings tabs array.
-		 *
-		 * @param array $settings_tabs Array of WooCommerce setting tabs & their labels, excluding the Subscription tab.
-		 * @return array $settings_tabs Array of WooCommerce setting tabs & their labels, including the Subscription tab.
-		 */
-		public static function add_settings_tab( $settings_tabs ) {
-			$settings_tabs['settings_tab_demo'] = __( 'Settings Demo Tab', 'woocommerce-settings-tab-demo' );
-			return $settings_tabs;
-		}
-
-
-		/**
-		 * Uses the WooCommerce admin fields API to output settings via the @see woocommerce_admin_fields() function.
-		 *
-		 * @uses woocommerce_admin_fields()
-		 * @uses self::get_settings()
-		 */
-		public static function settings_tab() {
-			woocommerce_admin_fields( self::get_settings() );
-		}
-
-
-		/**
-		 * Uses the WooCommerce options API to save settings via the @see woocommerce_update_options() function.
-		 *
-		 * @uses woocommerce_update_options()
-		 * @uses self::get_settings()
-		 */
-		public static function update_settings() {
-			woocommerce_update_options( self::get_settings() );
-		}
-
-
-		/**
-		 * Get all the settings for this plugin for @see woocommerce_admin_fields() function.
-		 *
-		 * @return array Array of settings for @see woocommerce_admin_fields() function.
-		 */
-		public static function get_settings() {
-
-			$settings = array(
-				'section_title' => array(
-					'name' => __( 'Section Title', 'woocommerce-settings-tab-demo' ),
-					'type' => 'title',
-					'desc' => '',
-					'id'   => 'wc_settings_tab_demo_section_title',
-				),
-				'title'         => array(
-					'name' => __( 'Title', 'woocommerce-settings-tab-demo' ),
-					'type' => 'text',
-					'desc' => __( 'This is some helper text', 'woocommerce-settings-tab-demo' ),
-					'id'   => 'wc_settings_tab_demo_title',
-				),
-				'description'   => array(
-					'name' => __( 'Description', 'woocommerce-settings-tab-demo' ),
-					'type' => 'textarea',
-					'desc' => __( 'This is a paragraph describing the setting. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda.', 'woocommerce-settings-tab-demo' ),
-					'id'   => 'wc_settings_tab_demo_description',
-				),
-				'section_end'   => array(
-					'type' => 'sectionend',
-					'id'   => 'wc_settings_tab_demo_section_end',
-				),
-			);
-
-			return apply_filters( 'wc_settings_tab_demo_settings', $settings );
-		}
-
-	}
-
-	WC_Settings_Tab_Demo::init();
-
-	if ( ! defined( 'ABSPATH' ) ) {
-		exit;
-	}
-
-
-	/**
 	 * Define constants
 	 */
 	if ( ! defined( 'TPWCP_PLUGIN_VERSION' ) ) {
@@ -126,9 +33,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 
 	require TPWCP_PLUGIN_DIR_PATH . '/classes/class-tpwcp-admin.php';
-
-	require TPWCP_PLUGIN_DIR_PATH . '/classes/class-tpwcp-front.php';
-
 	/**
 	 * Start the plugin.
 	 */
@@ -139,6 +43,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 	}
 	add_action( 'plugins_loaded', 'tpwcp_init' );
+
+	/**
+	 * WC_Settings_Tab_Demo
+	 */
+	require TPWCP_PLUGIN_DIR_PATH . '/classes/class-wc-settings-tab-demo.php';
+	new WC_Settings_Tab_Demo();
 
 	/**
 	 * Removes that product from shop page whose category is passed in terms field
@@ -160,6 +70,47 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 	}
 	add_action( 'woocommerce_product_query', 'custom_pre_get_posts_query' );
+
+	/**
+	 * Add custom tracking code to the thank-you page
+	 *
+	 * @param [string] $order_id is a string.
+	 */
+	function my_custom_tracking( $order_id ) {
+
+		// Lets grab the order.
+		$order = wc_get_order( $order_id );
+
+		/**
+		 * Put your tracking code here
+		 * You can get the order total etc e.g. $order->get_total();
+		 */
+
+		// This is the order total.
+		$order->get_total();
+
+		// This is how to grab line items from the order .
+		$line_items = $order->get_items();
+
+		// This loops over line items.
+		foreach ( $line_items as $item ) {
+			// This will be a product.
+			$product = $order->get_product_from_item( $item );
+
+			// This is the products SKU.
+			$sku = $product->get_sku();
+
+			// This is the qty purchased.
+			$qty = $item['qty'];
+
+			// Line item total cost including taxes and rounded.
+			$total = $order->get_line_total( $item, true, true );
+
+			// Line item subtotal (before discounts).
+			$subtotal = $order->get_line_subtotal( $item, true, true );
+		}
+	}
+	add_action( 'woocommerce_thankyou', 'my_custom_tracking' );
 
 	/**
 	 * Override loop template and show quantities next to add to cart buttons
@@ -324,6 +275,11 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 
 	/**
+	 * Hide sub-category product count in product archives
+	 */
+	add_filter( 'woocommerce_subcategory_count_html', '__return_false' );
+
+	/**
 	 * Remove product content based on category
 	 * Removes the image of product on the single product page
 	 */
@@ -336,6 +292,21 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 	}
 	// add_action( 'wp', 'remove_product_content' );.
+
+	/**
+	 * Auto Complete all WooCommerce orders.
+	 *
+	 * @param [string] $order_id is a string .
+	 */
+	function custom_woocommerce_auto_complete_order( $order_id ) {
+		if ( ! $order_id ) {
+			return;
+		}
+
+		$order = wc_get_order( $order_id );
+		$order->update_status( 'processing' );
+	}
+	add_action( 'woocommerce_thankyou', 'custom_woocommerce_auto_complete_order' );
 
 	/**
 	 * Add a 1% surcharge to your cart / checkout
@@ -396,33 +367,26 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_action( 'woocommerce_before_cart', 'add_coupon_notice' );
 	add_action( 'woocommerce_before_checkout_form', 'add_coupon_notice' );
 
-	/**
-	 * Adjust the quantity input values
-	 *
-	 *  @param [string] $args is a string .
-	 *  @param [string] $product is a string .
-	 */
-	function jk_woocommerce_quantity_input_args( $args, $product ) {
-		if ( is_singular( 'product' ) ) {
-			$args['input_value'] = 1; // Starting value (we only want to affect product pages, not cart).
+
+
+
+					// / / // GENERAL SNIPPETS //////
+
+	if ( ! function_exists( 'woocommerce_template_single_excerpt' ) ) {
+		/**
+		 * Allow shortcodes in product excerpts
+		 *
+		 * Woocommerce_template_single_excerpt()
+		 *
+		 * @param [string] $post is string.
+		 */
+		function woocommerce_template_single_excerpt( $post ) {
+			global $post;
+			if ( $post->post_excerpt ) {
+				echo '<div itemprop="description">' . do_shortcode( wpautop( wptexturize( $post->post_excerpt ) ) ) . '</div>';
+			}
 		}
-		$args['max_value'] = 80; // Maximum value.
-		$args['min_value'] = 1;  // Minimum value.
-		$args['step']      = 1;  // Quantity steps.
-		return $args;
 	}
-	add_filter( 'woocommerce_quantity_input_args', 'jk_woocommerce_quantity_input_args', 10, 2 ); // Simple products.
-	/**
-	 * Adjust the quantity input values
-	 *
-	 *  @param [string] $args is a string .
-	 */
-	function jk_woocommerce_available_variation( $args ) {
-		$args['max_qty'] = 80; // Maximum value (variations).
-		$args['min_qty'] = 4;  // Minimum value (variations).
-		return $args;
-	}
-	add_filter( 'woocommerce_available_variation', 'jk_woocommerce_available_variation' ); // Variations.
 
 	/**
 	 * Send an email each time an order with coupon(s) is completed
@@ -433,7 +397,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function woo_email_order_coupons( $order_id ) {
 		$order = new WC_Order( $order_id );
 
-		if ( $order->get_coupon_codes()() ) {
+		if ( $order->get_coupon_codes() ) {
 
 			$to      = 'youremail@yourcompany.com';
 			$subject = 'New Order Completed';
@@ -443,7 +407,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			$message .= 'Order ID: ' . $order_id . '\n';
 			$message .= 'Coupons used:\n';
 
-			foreach ( $order->get_coupon_codes()() as $coupon ) {
+			foreach ( $order->get_coupon_codes() as $coupon ) {
 				$message .= $coupon . '\n';
 			}
 			@wp_mail( $to, $subject, $message, $headers );
@@ -480,6 +444,35 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 	add_filter( 'woocommerce_email_subject_new_order', 'change_admin_email_subject', 1, 2 );
 
+
+	/**
+	 * Adjust the quantity input values
+	 *
+	 *  @param [string] $args is a string .
+	 *  @param [string] $product is a string .
+	 */
+	function jk_woocommerce_quantity_input_args( $args, $product ) {
+		if ( is_singular( 'product' ) ) {
+			$args['input_value'] = 1; // Starting value (we only want to affect product pages, not cart).
+		}
+		$args['max_value'] = 80; // Maximum value.
+		$args['min_value'] = 1;  // Minimum value.
+		$args['step']      = 1;  // Quantity steps.
+		return $args;
+	}
+	add_filter( 'woocommerce_quantity_input_args', 'jk_woocommerce_quantity_input_args', 10, 2 ); // Simple products.
+	/**
+	 * Adjust the quantity input values
+	 *
+	 *  @param [string] $args is a string .
+	 */
+	function jk_woocommerce_available_variation( $args ) {
+		$args['max_qty'] = 80; // Maximum value (variations).
+		$args['min_qty'] = 4;  // Minimum value (variations).
+		return $args;
+	}
+	add_filter( 'woocommerce_available_variation', 'jk_woocommerce_available_variation' ); // Variations.
+
 	/**
 	 * Function to add a payment gateway
 	 *
@@ -497,52 +490,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		/**
 		 * Gateway class
 		 */
-		class WC_Gateway_Name extends WC_Payment_Gateway {
-			/**
-			 * Construct function
-			 */
-			public function __construct() {
-				$this->id           = 'other_payment';
-				$this->method_title = __( 'Custom Payment', 'woocommerce-other-payment-gateway' );
-				$this->title        = __( 'Custom Payment', 'woocommerce-other-payment-gateway' );
-				$this->has_fields   = true;
-				$this->init_form_fields();
-				$this->init_settings();
-				$this->enabled     = $this->get_option( 'enabled' );
-				$this->title       = $this->get_option( 'title' );
-				$this->description = $this->get_option( 'description' );
-				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-			}
-			/**
-			 * Function to create form fields
-			 *
-			 * @return void
-			 */
-			public function init_form_fields() {
-				$this->form_fields = array(
-					'enabled'     => array(
-						'title'   => __( 'Enable/Disable', 'woocommerce-other-payment-gateway' ),
-						'type'    => 'checkbox',
-						'label'   => __( 'Enable Custom Payment', 'woocommerce-other-payment-gateway' ),
-						'default' => 'yes',
-					),
-					'title'       => array(
-						'title'       => __( 'Method Title', 'woocommerce-other-payment-gateway' ),
-						'type'        => 'text',
-						'description' => __( 'This controls the title', 'woocommerce-other-payment-gateway' ),
-						'default'     => __( 'Custom Payment', 'woocommerce-other-payment-gateway' ),
-						'desc_tip'    => true,
-					),
-					'description' => array(
-						'title'       => __( 'Customer Message', 'woocommerce-other-payment-gateway' ),
-						'type'        => 'textarea',
-						'css'         => 'width:500px;',
-						'default'     => 'None of the other payment options are suitable for you? please drop us a note about your favourable payment option and we will contact you as soon as possible.',
-						'description' => __( 'The message which you want it to appear to the customer in the checkout page.', 'woocommerce-other-payment-gateway' ),
-					),
-				);
-			}
-		}
+		require TPWCP_PLUGIN_DIR_PATH . '/classes/class-wc-gateway-name.php';
+		new WC_Gateway_Name();
 
 		/**
 		 * Add the Gateway to WooCommerce
@@ -556,6 +505,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		add_filter( 'woocommerce_payment_gateways', 'woocommerce_add_gateway_name_gateway' );
 	}
 		add_action( 'plugins_loaded', 'woocommerce_gateway_name_init', 0 );
+
+	/**
+	 * Allow customers to access wp-admin
+	 */
+	add_filter( 'woocommerce_prevent_admin_access', '__return_false' );
+	add_filter( 'woocommerce_disable_admin_bar', '__return_false' );
+
 
 	/**
 	 * Automatically add product whose ID is given to cart on visit
@@ -585,12 +541,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	// add_action( 'template_redirect', 'add_product_to_cart' );.
 
 	/**
-	 * Allow customers to access wp-admin
-	 */
-	add_filter( 'woocommerce_prevent_admin_access', '__return_false' );
-	add_filter( 'woocommerce_disable_admin_bar', '__return_false' );
-
-	/**
 	 * Show product weight on archive pages(Shop page)
 	 */
 	function rs_show_weights() {
@@ -607,7 +557,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	/**
 	 * Prevent PO box shipping
 	 *
-	 * @param [string] $posted is a string .
+	 * @param [string] $posted is a string.
 	 */
 	function deny_pobox_postcode( $posted ) {
 		global $woocommerce;
@@ -615,7 +565,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$address  = ( isset( $posted['shipping_address_1'] ) ) ? $posted['shipping_address_1'] : $posted['billing_address_1'];
 		$postcode = ( isset( $posted['shipping_postcode'] ) ) ? $posted['shipping_postcode'] : $posted['billing_postcode'];
 
-		$replace  = array( '', '.', ',' );
+		$replace  = array( ' ', '.', ',' );
 		$address  = strtolower( str_replace( $replace, '', $address ) );
 		$postcode = strtolower( str_replace( $replace, '', $postcode ) );
 
@@ -646,7 +596,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function wc_show_attribute_links() {
 		// if you'd like to show it on archive page, replace "woocommerce_product_meta_end" with "woocommerce_shop_loop_item_title".
 		global $post;
-		$attribute_names = array( '<ATTRIBUTE_NAME>', '<ANOTHER_ATTRIBUTE_NAME>' ); // Add attribute names here and remember to add the pa_ prefix to the attribute name.
+		$attribute_names = array( 'pa_color', 'size' ); // Add attribute names here and remember to add the pa_ prefix to the attribute name.
 
 		foreach ( $attribute_names as $attribute_name ) {
 			$taxonomy = get_taxonomy( $attribute_name );
@@ -666,6 +616,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 		}
 	}
+	add_action( 'woocommerce_product_meta_end', 'wc_show_attribute_links' );
 	add_action( 'woocommerce_shop_loop_item_title', 'wc_show_attribute_links' );
 
 	/**
@@ -788,6 +739,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_action( 'woocommerce_before_cart', 'wc_minimum_order_amount' );
 
 
+
+
+					// // THEMING SNIPPET////.
+
+
+
 	/**
 	 * Change number of products that are displayed per page (shop page)
 	 *
@@ -818,6 +775,24 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	 * Disable all stylesheets by WooCommerce
 	 */
 	add_filter( 'woocommerce_enqueue_styles', '__return_empty_array' );
+
+	/**
+	 * Show cart contents / total Ajax
+	 *
+	 * @param [string] $fragments is a string.
+	 */
+	function woocommerce_header_add_to_cart_fragment( $fragments ) {
+		global $woocommerce;
+
+		ob_start();
+
+		?>
+		<a class="cart-customlocation" href="<?php echo esc_url( wc_get_cart_url() ); ?>" title="<?php _e( 'View your shopping cart', 'woothemes' ); ?>"><?php echo sprintf( _n( '%d item', '%d items', $woocommerce->cart->cart_contents_count, 'woothemes' ), $woocommerce->cart->cart_contents_count ); ?> - <?php echo $woocommerce->cart->get_cart_total(); ?></a>
+		<?php
+		$fragments['a.cart-customlocation'] = ob_get_clean();
+		return $fragments;
+	}
+	add_filter( 'woocommerce_add_to_cart_fragments', 'woocommerce_header_add_to_cart_fragment' );
 
 	/**
 	 * Hide Add to cart button for out of stock items .
@@ -887,14 +862,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 	/**
 	 * Show product categories in Woorramework breadcrumbs
-	 */
-	// Get breadcrumbs on product pages that read: Home > Shop > Product category > Product Name.
-	add_filter( 'woo_breadcrumbs_trail', 'woo_custom_breadcrumbs_trail_add_product_categories', 20 );
-
-	/**
-	 * Woo_custom_breadcrumbs_trail_add_product_categories
+	 * Get breadcrumbs on product pages that read: Home > Shop > Product category > Product Name.
 	 *
-	 * @param [string] $trail is a string .
+	 * @param [string] $trail is a string.
 	 */
 	function woo_custom_breadcrumbs_trail_add_product_categories( $trail ) {
 		if ( ( get_post_type() === 'product' ) && is_singular() ) {
@@ -938,30 +908,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 		return $trail;
 	}
-
-	/**
-	 * Retrieve term parents with separator.
-	 *
-	 * @param int $id Term ID.
-	 * @param string $taxonomy.
-	 * @param bool $link Optional, default is false. Whether to format with link.
-	 * @param string $separator Optional, default is '/'. How to separate terms.
-	 * @param bool $nicename Optional, default is false. Whether to use nice name for display.
-	 * @param array $visited Optional. Already linked to terms to prevent duplicates.
-	 * @return string
-	 */
+	add_filter( 'woo_breadcrumbs_trail', 'woo_custom_breadcrumbs_trail_add_product_categories', 20 );
 
 	if ( ! function_exists( 'woo_get_term_parents' ) ) {
 		/**
-		 * Woo_get_term_parents
+		 * Retrieve term parents with separator.
 		 *
-		 * @param int     $id Term ID.
-		 * @param string  $taxonomy is used to store taxonomies.
-		 * @param boolean $link is used to store links.
-		 * @param string  $separator is used to store separator.
-		 * @param boolean $nicename is used to store nicename.
-		 * @param array   $visited is used to store visited.
-		 * @return $parent
+		 * @param int    $id Term ID.
+		 * @param string $taxonomy is used to store taxonomy.
+		 * @param bool   $link Optional, default is false. Whether to format with link.
+		 * @param string $separator Optional, default is '/'. How to separate terms.
+		 * @param bool   $nicename Optional, default is false. Whether to use nice name for display.
+		 * @param array  $visited Optional. Already linked to terms to prevent duplicates.
+		 * @return string
 		 */
 		function woo_get_term_parents( $id, $taxonomy, $link = false, $separator = '/', $nicename = false, $visited = array() ) {
 			$chain  = '';
@@ -969,15 +928,16 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			if ( is_wp_error( $parent ) ) {
 				return $parent;
 			}
+
 			if ( $nicename ) {
 				$name = $parent->slug;
 			} else {
 				$name = $parent->name;
 			}
 
-			if ( $parent->parent && ( $parent->parent !== $parent->term_id ) && ! in_array( $parent->parent, $visited ) ) {
+			if ( $parent->parent && ( $parent->parent !== $parent->term_id ) && ! in_array( $parent->parent, $visited, true ) ) {
 				$visited[] = $parent->parent;
-				$chain .= woo_get_term_parents( $parent->parent, $taxonomy, $link, $separator, $nicename, $visited );
+				$chain    .= woo_get_term_parents( $parent->parent, $taxonomy, $link, $separator, $nicename, $visited );
 			}
 
 			if ( $link ) {
@@ -992,7 +952,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	/**
 	 * Remove related products output
 	 */
-	remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );
+	// remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_related_products', 20 );.
+	add_filter( 'woocommerce_product_related_posts_query', '__return_empty_array', 100 );
 
 	/**
 	 * Check if WooCommerce is activated
@@ -1009,4 +970,125 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 		}
 	}
+
+	/**
+	 * Changes the redirect URL for the Return To Shop button in the cart.
+	 */
+	function wc_empty_cart_redirect_url() {
+		return 'www.google.com';
+	}
+	add_filter( 'woocommerce_return_to_shop_redirect', 'wc_empty_cart_redirect_url', 11 );
+
+	/**
+	 * Hook in
+	 * Our hooked in function - $address_fields is passed via the filter!
+	 *
+	 * @param [string] $address_fields is string.
+	 */
+	function custom_override_default_address_fields( $address_fields ) {
+		$address_fields['billing']['billing_address_2']['required'] = true;
+
+		return $address_fields;
+	}
+	add_filter( 'woocommerce_checkout_fields', 'custom_override_default_address_fields' );
+
+
+	/**
+	 * Our hooked in function - $fields is passed via the filter!
+	 *
+	 * @param [string] $fields is string.
+	 */
+	function custom_override_checkout_fields( $fields ) {
+		$fields['shipping']['shipping_phone'] = array(
+			'label'       => __( 'Phone', 'woocommerce' ),
+			'placeholder' => _x( 'Phone', 'placeholder', 'woocommerce' ),
+			'required'    => true,
+			'class'       => array( 'form-row-wide' ),
+			'clear'       => true,
+		);
+
+		return $fields;
+	}
+	// Hook in.
+	add_filter( 'woocommerce_checkout_fields', 'custom_override_checkout_fields' );
+
+	/**
+	 * Add the field to the checkout
+	 *
+	 * @param [string] $checkout is string.
+	 */
+	function my_custom_checkout_field( $checkout ) {
+
+		echo '<div id="my_custom_checkout_field"><h2>' . __( 'My Customized Field' ) . '</h2>';
+
+		woocommerce_form_field(
+			'my_field_name',
+			array(
+				'type'        => 'text',
+				'class'       => array( 'my-field-class form-row-wide' ),
+				// 'required'    => 'true',.
+				'label'       => __( 'Fill in this field' ),
+				'placeholder' => __( 'Enter something' ),
+			),
+			$checkout->get_value( 'my_field_name' )
+		);
+
+		echo '</div>';
+	}
+	add_action( 'woocommerce_after_order_notes', 'my_custom_checkout_field' );
+
+	/**
+	 * Process the checkout
+	 */
+	function my_custom_checkout_field_process() {
+		// Check if set, if its not set add an error.
+		if ( sanitize_text_field( wp_unslash( ! $_POST['my_field_name'] ) ) ) {
+			wc_add_notice( __( 'Please enter something into your customized field.' ), 'error' );
+		}
+	}
+	// add_action('woocommerce_checkout_process', 'my_custom_checkout_field_process');.
+
+	/**
+	 * Update the order meta with field value
+	 * my_custom_checkout_field_update_order_meta is used to update order
+	 *
+	 * @param [string] $order_id is a string.
+	 */
+	function my_custom_checkout_field_update_order_meta( $order_id ) {
+		if ( ! empty( $_POST['my_field_name'] ) ) {
+			update_post_meta( $order_id, 'My Field', sanitize_text_field( wp_unslash( $_POST['my_field_name'] ) ) );
+		}
+	}
+	add_action( 'woocommerce_checkout_update_order_meta', 'my_custom_checkout_field_update_order_meta' );
+
+	/**
+	 * Display field value on the order edit page
+	 *
+	 * @param [string] $order is string.
+	 */
+	function my_custom_checkout_field_display_admin_order_meta( $order ) {
+		echo '<p><strong>' . __( 'My Field' ) . ':</strong> ' . get_post_meta( $order->id, 'My Field', true ) . '</p>';
+	}
+	add_action( 'woocommerce_admin_order_data_after_billing_address', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
+
+	/**
+	 * WC_Your_Shipping_Method is used for customized shipping method
+	 */
+	function your_shipping_method_init() {
+		if ( ! class_exists( 'WC_Your_Shipping_Method' ) ) {
+			require TPWCP_PLUGIN_DIR_PATH . '/classes/class-wc-your-shipping-method.php';
+			new WC_Your_Shipping_Method();
+		}
+	}
+	add_action( 'woocommerce_shipping_init', 'your_shipping_method_init' );
+	/**
+	 * Add_your_shipping_method function is used to add custom shippig method
+	 *
+	 * @param [string] $methods is string.
+	 */
+	function add_your_shipping_method( $methods ) {
+		$methods['your_shipping_method'] = 'WC_Your_Shipping_Method';
+		return $methods;
+	}
+	add_filter( 'woocommerce_shipping_methods', 'add_your_shipping_method' );
 }

@@ -1,17 +1,18 @@
 <?php
 /**
- * Class to create additional product panel in admin
+ * Exit if accessed directly.
  *
  * @package TPWCP
  */
 
-// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 if ( ! class_exists( 'TPWCP_Admin' ) ) {
-
+	/**
+	 * Class to create additional product panel in admin
+	 */
 	class TPWCP_Admin {
 		/**
 		 * __construct() function fir admin.
@@ -35,7 +36,7 @@ if ( ! class_exists( 'TPWCP_Admin' ) ) {
 		 * Add the new tab to the $tabs array
 		 *
 		 * @see https://github.com/woocommerce/woocommerce/blob/e1a82a412773c932e76b855a97bd5ce9dedf9c44/includes/admin/meta-boxes/class-wc-meta-box-product-data.php
-		 * @param $tabs
+		 * @param [string] $tabs is a string.
 		 * @since   1.0.0
 		 */
 		public function create_giftwrap_tab( $tabs ) {
@@ -114,7 +115,7 @@ if ( ! class_exists( 'TPWCP_Admin' ) ) {
 		/**
 		 * Save the custom fields using CRUD method
 		 *
-		 * @param [string] $post_id
+		 * @param [string] $post_id is a string.
 		 * @since 1.0.0
 		 */
 		public function save_fields( $post_id ) {
@@ -154,4 +155,32 @@ if ( ! class_exists( 'TPWCP_Admin' ) ) {
 		}
 
 	}
+
+	/**
+	 * Display custom field on the front end
+	 *
+	 * @since 1.0.0
+	 */
+	function cfwc_display_custom_checkbox() {
+		global $post;
+		// Check for the custom field value.
+		$product = wc_get_product( $post->ID );
+		$check   = $product->get_meta( 'include_giftwrap_option' );
+		$msg     = $product->get_meta( 'include_custom_message' );
+		$price   = $product->get_meta( 'giftwrap_cost' );
+		if ( 'yes' === $check ) {
+			// Only display our field if we've got a value for the field title.
+			printf(
+				'<div class="giftwrap">
+				<p><input type="checkbox" id="cfwc-custom-checkbox" name="cfwc-custom-checkbox" value="">Giftwrap this product? ($%s)<br>',
+				esc_html( $price )
+			);
+		}
+		if ( 'yes' === $msg ) {
+			printf(
+				'<br><label for="cfwc-custom-message">Add a custom message?</label><br><input type="text" id="cfwc-custom-message" name="cfwc-custom-message" value=""></p></div>',
+			);
+		}
+	}
+	add_action( 'woocommerce_before_add_to_cart_button', 'cfwc_display_custom_checkbox' );
 }
