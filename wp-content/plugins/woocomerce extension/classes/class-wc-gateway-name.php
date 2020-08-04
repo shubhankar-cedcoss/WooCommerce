@@ -14,8 +14,12 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 		$this->method_title = __( 'Custom Payment', 'woocommerce-other-payment-gateway' );
 		$this->title        = __( 'Custom Payment', 'woocommerce-other-payment-gateway' );
 		$this->has_fields   = true;
+
+		// Load the settings.
 		$this->init_form_fields();
 		$this->init_settings();
+
+		// Define user set variables.
 		$this->enabled     = $this->get_option( 'enabled' );
 		$this->title       = $this->get_option( 'title' );
 		$this->description = $this->get_option( 'description' );
@@ -24,8 +28,6 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 
 	/**
 	 * Function to create form fields
-	 *
-	 * @return void
 	 */
 	public function init_form_fields() {
 		$this->form_fields = array(

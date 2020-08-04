@@ -33,7 +33,7 @@ class WC_Gateway_COD extends WC_Payment_Gateway {
 	 *
 	 * @param [string] $order_id is strong.
 	 */
-	function process_payment( $order_id ) {
+	public function process_payment( $order_id ) {
 		global $woocommerce;
 		$order = new WC_Order( $order_id );
 
