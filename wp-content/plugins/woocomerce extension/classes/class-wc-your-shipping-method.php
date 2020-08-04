@@ -96,4 +96,3 @@ class WC_Your_Shipping_Method extends WC_Shipping_Method {
 		$this->add_rate( $rate );
 	}
 }
-

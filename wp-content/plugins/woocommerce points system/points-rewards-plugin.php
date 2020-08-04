@@ -137,4 +137,3 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 	add_action( 'wp_head', 'calculate_points' );
 }
-
