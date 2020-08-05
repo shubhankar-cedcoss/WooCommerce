@@ -27,7 +27,7 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Function to create form fields
+	 * Function to create form fields.
 	 */
 	public function init_form_fields() {
 		$this->form_fields = array(

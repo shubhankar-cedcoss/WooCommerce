@@ -30,7 +30,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			return;
 		}
 		/**
-		* Localisation
+		* Localisation loads a plugin’s translated strings.
 		*/
 		load_plugin_textdomain( 'wc-gateway-name', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
