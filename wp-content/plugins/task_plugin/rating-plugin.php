@@ -114,7 +114,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_action( 'woocommerce_product_data_panels', 'woocommerce_tip_field' );
 
 	/**
-	 * Save the custom fields using CRUD method
+	 * Save the custom fields
 	 *
 	 * @param [string] $post_id is a string.
 	 */
