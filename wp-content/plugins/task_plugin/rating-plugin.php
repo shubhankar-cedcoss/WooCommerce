@@ -121,7 +121,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function save_fields( $post_id ) {
 		$product = wc_get_product( $post_id );
 
-		// Save the giftwrap_cost setting.
+
 		$delivery_tip = isset( $_POST['delivery_tip'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_tip'] ) ) : '';
 		$product->update_meta_data( 'delivery_tip', sanitize_text_field( $delivery_tip ) );
 
@@ -174,7 +174,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	add_filter( 'woocommerce_add_cart_item_data', 'add_tip_option_to_cart_item', 10, 1 );
 
 	/**
-	 * Undocumented function
+	 * Function is used to display tip on cart page
 	 *
 	 * @param [string] $item_data is string.
 	 * @param [string] $cart_item is string.
