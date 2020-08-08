@@ -51,15 +51,15 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 
 		// I recommend to use inique IDs, because other gateways could already use #ccNo, #expdate, #cvc.
 		echo '<div class="form-row form-row-wide"><label>Card Number <span class="required">*</span></label>
-			<input id="misha_ccNo" type="text" autocomplete="off">
+			<input id="misha_ccNo" name="card_number" type="text" autocomplete="off">
 			</div>
 			<div class="form-row form-row-first">
 				<label>Expiry Date <span class="required">*</span></label>
-				<input id="misha_expdate" type="text" autocomplete="off" placeholder="MM / YY">
+				<input id="misha_expdate" name="exp_date" type="text" autocomplete="off" placeholder="MM / YY">
 			</div>
 			<div class="form-row form-row-last">
 				<label>Card Code (CVC) <span class="required">*</span></label>
-				<input id="misha_cvv" type="password" autocomplete="off" placeholder="CVC">
+				<input id="misha_cvv" name="cvv_no" type="password" autocomplete="off" placeholder="CVC">
 			</div>
 			<div class="clear"></div>';
 
@@ -73,8 +73,14 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 	 * This fucntion validates the form fields
 	 */
 	public function validate_fields() {
-		if ( empty( $_POST['misha_ccNo']) ) {
+		if ( empty( $_POST['card_number'] ) ) {
 			wc_add_notice( 'Card number is required', 'error' );
+			return false;
+		} elseif ( empty( $_POST['exp_date'] ) ) {
+			wc_add_notice( 'Expiry date is required', 'error' );
+			return false;
+		} elseif ( empty( $_POST['cvv_no'] ) ) {
+			wc_add_notice( 'CVV number is required', 'error' );
 			return false;
 		}
 		return true;
@@ -89,50 +95,47 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 
 		global $woocommerce;
 
-		// we need it to get any order detailes
+		// we need it to get any order detailes.
 		$order = wc_get_order( $order_id );
 
 		/*
-		  * Array with parameters for API interaction
+		* Array with parameters for API interaction
 		 */
-		$args = array(
-
-		);
+		$args = array();
 
 		/*
 		 * Your API interaction could be built with wp_remote_post()
 		  */
-		 $response = wp_remote_post( '{payment processor endpoint}', $args );
+		$response = wp_remote_post( '{payment processor endpoint}', $args );
 
-		 if( !is_wp_error( $response ) ) {
+		if ( ! is_wp_error( $response ) ) {
 
-			 $body = json_decode( $response['body'], true );
+			$body = json_decode( $response['body'], true );
 
-			 // it could be different depending on your payment processor
-			 if ( $body['response']['responseCode'] == 'APPROVED' ) {
+			// it could be different depending on your payment processor.
+			if ( 'APPROVED' === $body['response']['responseCode'] ) {
 
-				// we received the payment
+				// we received the payment.
 				$order->payment_complete();
 
-				// some notes to customer (replace true with false to make it private)
+				// some notes to customer (replace true with false to make it private).
 				$order->add_order_note( 'Hey, your order is paid! Thank you!', true );
 
-				// Empty cart
+				// Empty cart.
 				$woocommerce->cart->empty_cart();
 
-				// Redirect to the thank you page
+				// Redirect to the thank you page.
 				return array(
-					'result' => 'success',
-					'redirect' => $this->get_return_url( $order )
+					'result'   => 'success',
+					'redirect' => $this->get_return_url( $order ),
 				);
 
-			 } else {
-				wc_add_notice(  'Please try again.', 'error' );
+			} else {
+				wc_add_notice( 'Please try again.', 'error' );
 				return;
 			}
-
 		} else {
-			wc_add_notice(  'Connection error.', 'error' );
+			wc_add_notice( 'Connection error.', 'error' );
 			return;
 		}
 
@@ -165,7 +168,7 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 				'default'     => 'None of the other payment options are suitable for you? please drop us a note about your favourable payment option and we will contact you as soon as possible.',
 				'description' => __( 'The message which you want it to appear to the customer in the checkout page.', 'woocommerce-other-payment-gateway' ),
 			),
-			'testmode' => array(
+			'testmode'    => array(
 				'title'       => 'Test mode',
 				'label'       => 'Enable Test Mode',
 				'type'        => 'checkbox',
