@@ -22,7 +22,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	}
 
 	/**
-	 * Function to add ratings
+	 * Function to add rating
 	 */
 	function rating_fields() { ?>
 		<div class="product_custom_field">
