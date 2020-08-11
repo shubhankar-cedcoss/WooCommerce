@@ -18,7 +18,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		define( 'TPWCP_PLUGIN_VERSION', '1.0.0' );
 	}
 	if ( ! defined( 'TPWCP_PLUGIN_DIR_PATH' ) ) {
-		define( 'TPWCP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );
+		define( 'TPWCP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );// if anything in future we require something.
 	}
 
 	/**
@@ -191,7 +191,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 			'key'     => __( 'tip', 'iconic' ),
 
-			'value'   => wc_clean( $cart_item['opt'] ),
+			'value'   => $cart_item['opt'],
 
 			'display' => '',
 
