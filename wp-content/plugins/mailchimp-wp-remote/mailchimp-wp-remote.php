@@ -13,7 +13,6 @@ function sync_mailchimp() {
 	$api_key = '5dcf599a9ddb862bc704c25e3cb8c0d0-us17';
 	$list_id = '261a6ae802';
 
-	// $member_id   = md5( strtolower( $_POST['email'] ) );.
 	$data_center = substr( $api_key, strpos( $api_key, '-' ) + 1 );
 	$url         = 'https://' . $data_center . '.api.mailchimp.com/3.0/lists/' . $list_id . '/members';
 
@@ -39,6 +38,5 @@ function sync_mailchimp() {
 	);
 
 	$result = wp_remote_post( $url, $args );
-	//print_r( $result );
 }
 add_action( 'user_register', 'sync_mailchimp' );
