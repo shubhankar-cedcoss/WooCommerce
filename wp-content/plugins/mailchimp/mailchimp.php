@@ -35,28 +35,28 @@ function sync_mailchimp( $data ) {
 	$json = json_encode(
 		array(
 			'email_address' => $data['email'],
-			'status'        => $data['status'], // "subscribed","unsubscribed","cleaned","pending"
+			'status'        => $data['status'],
 			'firstname'     => $data['firstname'],
-			// 'merge_fields'  => array(
-				// 'FNAME' => $data['firstname'],
-				// 'LNAME' => $data['lastname'],
-			// ),
+			'merge_fields'  => array(
+				'FNAME' => $data['firstname'],
+				'LNAME' => $data['lastname'],
+			),
 		)
 	);
 
-	$ch = curl_init( $url );
+	$handler = curl_init( $url );
 
-	curl_setopt( $ch, CURLOPT_USERPWD, 'user:' . $api_key );
-	curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
-	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
-	curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'PUT' );
-	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-	curl_setopt( $ch, CURLOPT_POSTFIELDS, $json );
+	curl_setopt( $handler, CURLOPT_USERPWD, 'user:' . $api_key );
+	curl_setopt( $handler, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
+	curl_setopt( $handler, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt( $handler, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $handler, CURLOPT_CUSTOMREQUEST, 'PUT' );
+	curl_setopt( $handler, CURLOPT_SSL_VERIFYPEER, false );
+	curl_setopt( $handler, CURLOPT_POSTFIELDS, $json );
 
-	$result = curl_exec( $ch );
-	$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-	curl_close( $ch );
+	$result = curl_exec( $handler );
+	$http_code = curl_getinfo( $handler, CURLINFO_HTTP_CODE );
+	curl_close( $handler );
 
 	return $http_code . $result;
 }

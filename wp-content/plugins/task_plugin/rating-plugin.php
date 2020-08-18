@@ -11,15 +11,6 @@
  */
 
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ), true ) ) ) {
-	/**
-	 * Define constants
-	 */
-	if ( ! defined( 'TPWCP_PLUGIN_VERSION' ) ) {
-		define( 'TPWCP_PLUGIN_VERSION', '1.0.0' );
-	}
-	if ( ! defined( 'TPWCP_PLUGIN_DIR_PATH' ) ) {
-		define( 'TPWCP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ) );// if anything in future we require something.
-	}
 
 	/**
 	 * Function to add rating
@@ -121,7 +112,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 	function save_fields( $post_id ) {
 		$product = wc_get_product( $post_id );
 
-
 		$delivery_tip = isset( $_POST['delivery_tip'] ) ? sanitize_text_field( wp_unslash( $_POST['delivery_tip'] ) ) : '';
 		$product->update_meta_data( 'delivery_tip', sanitize_text_field( $delivery_tip ) );
 
@@ -189,11 +179,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 		$item_data[] = array(
 
-			'key'     => __( 'tip', 'iconic' ),
+			'key'   => __( 'tip' ),
 
-			'value'   => $cart_item['opt'],
-
-			'display' => '',
+			'value' => $cart_item['opt'],
 
 		);
 

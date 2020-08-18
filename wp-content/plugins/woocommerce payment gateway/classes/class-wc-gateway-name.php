@@ -32,7 +32,7 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 	 * You will need this function if you want your custom credit card form
 	 */
 	public function payment_fields() {
-		// ok, let's display some description before the payment form.
+
 		if ( $this->description ) {
 			// you can instructions for test mode, I mean test card numbers etc.
 			if ( $this->testmode ) {
@@ -43,13 +43,12 @@ class WC_Gateway_Name extends WC_Payment_Gateway {
 			echo wpautop( wp_kses_post( $this->description ) );
 		}
 
-		// I will echo() the form, but you can close PHP tags and print it directly in HTML.
 		echo '<fieldset id="wc-' . esc_attr( $this->id ) . '-cc-form" class="wc-credit-card-form wc-payment-form" style="background:transparent;">';
 
 		// Add this action hook if you want your custom payment gateway to support it.
 		do_action( 'woocommerce_credit_card_form_start', $this->id );
 
-		// I recommend to use inique IDs, because other gateways could already use #ccNo, #expdate, #cvc.
+
 		echo '<div class="form-row form-row-wide"><label>Card Number <span class="required">*</span></label>
 			<input id="misha_ccNo" name="card_number" type="text" autocomplete="off">
 			</div>

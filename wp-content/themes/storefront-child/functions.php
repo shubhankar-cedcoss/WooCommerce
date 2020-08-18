@@ -32,7 +32,6 @@ function custom_post_type() {
 		'search_item'        => 'Search Education',
 		'not_found'          => 'No education found',
 		'not_found_in_trash' => 'No education found in trash',
-		'parent_item_colon'  => 'Parent Education',
 	);
 	$args   = array(
 		'labels'          => $labels,

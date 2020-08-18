@@ -14,7 +14,8 @@
  * Register new endpoint to use on My Account page
  */
 function custom_add_last_order_endpoint() {
-	add_rewrite_endpoint( 'latest-order', EP_ROOT | EP_PAGES );
+	// EP_PAGES->Endpoint mask describing the places where the endpoint should be added..
+	add_rewrite_endpoint( 'latest-order', EP_PERMALINK | EP_PAGES );
 }
 add_action( 'init', 'custom_add_last_order_endpoint' );
 
@@ -27,7 +28,8 @@ function latest_order_query_vars( $vars ) {
 	$vars[] = 'latest-order';
 	return $vars;
 }
-add_filter( 'query_vars', 'latest_order_query_vars', 0 );
+add_action( 'query_vars', 'latest_order_query_vars', 0 );
+// query_vars-> Filters the query variables allowed before processing.
 
 /**
  * Insert the new endpoint into the my mccount menu
@@ -35,10 +37,10 @@ add_filter( 'query_vars', 'latest_order_query_vars', 0 );
  * @param [string] $items is string.
  */
 function add_tab_last_order( $items ) {
-	$items['latest-order'] = 'Latest Order';
+	$items['latest-order'] = 'Last Purchase';
 	return $items;
 }
-add_filter( 'woocommerce_account_menu_items', 'add_tab_last_order' );
+add_action( 'woocommerce_account_menu_items', 'add_tab_last_order' );
 
 /**
  * Add content in the new tab
@@ -161,7 +163,7 @@ add_action( 'woocommerce_account_latest-order_endpoint', 'custom_tab_content' );
 function change_title( $title ) {
 	global $wp_query;
 	$endpoint = isset( $wp_query->query_vars['latest-order'] );
-	if ( $endpoint && ! is_admin() && is_main_query() && in_the_loop() && is_account_page() ) {
+	if ( $endpoint && ! is_admin() && in_the_loop() && is_account_page() ) {
 		$title = __( 'Order#', 'woocommerce-extension' );
 
 		remove_filter( 'the_title', 'lates_order_title' );
