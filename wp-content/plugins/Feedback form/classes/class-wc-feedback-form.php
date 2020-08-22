@@ -42,24 +42,97 @@ class WC_Feedback_Form {
 				'desc' => 'Here you can customize your feedback form fields according to you.',
 				'id'   => 'woocommerce-feedback-form_section_title',
 			),
-			'name'          => array(
-				'name' => __( 'Name', 'woocommerce-feedback-form' ),
-				'type' => 'checkbox',
-				'desc' => __( '', 'woocommerce-feedback-form' ),
-				'id'   => 'name_field',
+			'name1'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field1',
 			),
-			'email'         => array(
-				'name' => __( 'Email', 'woocommerce-feedback-form' ),
-				'type' => 'checkbox',
-				'desc' => __( '', 'woocommerce-feedback-form' ),
-				'id'   => 'email_field',
+			'name1_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field1_1',
 			),
-			'query'         => array(
-				'name' => __( 'Message', 'woocommerce-feedback-form' ),
+			'name1_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
 				'type' => 'checkbox',
-				'desc' => __( '', 'woocommerce-feedback-form' ),
-				'id'   => 'query_field',
+				'id'   => 'custom_field1_2',
 			),
+			'name2'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field2',
+			),
+			'name2_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field2_1',
+			),
+			'name2_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
+				'type' => 'checkbox',
+				'id'   => 'custom_field2_2',
+			),
+			'name3'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field3',
+			),
+			'name3_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field3_1',
+			),
+			'name3_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
+				'type' => 'checkbox',
+				'id'   => 'custom_field3_2',
+			),
+			'name4'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field4',
+			),
+			'name4_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field4_1',
+			),
+			'name4_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
+				'type' => 'checkbox',
+				'id'   => 'custom_field4_2',
+			),
+			'name5'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field5',
+			),
+			'name5_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field5_1',
+			),
+			'name5_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
+				'type' => 'checkbox',
+				'id'   => 'custom_field5_2',
+			),
+			'name6'         => array(
+				'name' => __( 'Custom Field', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field6',
+			),
+			'name6_1'         => array(
+				'name' => __( 'Custom Field Type', 'woocommerce-feedback-form' ),
+				'type' => 'text',
+				'id'   => 'custom_field6_1',
+			),
+			'name6_2'         => array(
+				'name' => __( 'Custom Field Enable/Disable', 'woocommerce-feedback-form' ),
+				'type' => 'checkbox',
+				'id'   => 'custom_field6_2',
+			),
+
 			'section_end'   => array(
 				'type' => 'sectionend',
 				'id'   => 'woocommerce-feedback-form_section_end',
