@@ -65,7 +65,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 
 		if ( 'yes' === $field5_2 ) {
-			$array[$field5] = isset( $_POST[ $field5 ] ) ? $_POST[ $field5 ] : '';
+			$array[$field5] = isset( $_POST[ $field5 ] ) ? $_POST[ $field5 ] : 'u';
 		}
 
 		$array['comments'] = sanitize_text_field( wp_unslash( $_POST['comments'] ) );
@@ -75,16 +75,19 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$user = get_current_user_id();
 
 		update_user_meta( $user, 'feedback', $array );
-
+		$name     = $_POST[$field1];
+		$email    = $_POST[$field2];
+		$phone    = $_POST[$field3];
+		$addresss = $_POST[$field4];
 		foreach ( $array as $k => $v ) {
 			if ( 1 === preg_match( '/name/', $k ) ) {
 				$name = isset( $name ) ? $name . ' ' . $v : $v;
 			}
-			if ( 1 === preg_match( '/[0-9]/', $v ) ) {
-				$phone = $v;
-			}
 			if ( 1 === preg_match( '/@gmail.com/', $v ) ) {
 				$email = $v;
+			}
+			if ( 1 === preg_match( '/[0-9]/', $v ) ) {
+				$phone = $v;
 			}
 			if ( 1 === preg_match( '/address/', $k ) ) {
 				$address = $v;
@@ -94,7 +97,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		//Retrieves information about the current site.
 		$admin_email = get_bloginfo( 'admin_email' );
 		$msg         = $array['comments'];
-		$feedback    = 'Feedback:' . $msg;
+		$feedback    = 'Name:' . $name . '  Feedback:' . $msg;
 		$header      = array(
 			'From:' . $name . '<' . $email . '>',
 		);
@@ -103,7 +106,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		wp_mail( $admin_email, 'Feedback', $feedback, $header );
 
 		//mail to customer
-		wp_mail( $email, 'Confirmation', 'Your Feedback has been submitted successfully' );
+		wp_mail( $email, 'Confirmation', 'Hello ' . $name . ', Your Feedback has been submitted successfully.' );
 
 		$output .= '<form action="" method="post">';
 		if ( 'yes' === $field1_2 ) {
@@ -161,7 +164,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$phpmailer->SMTPAuth = true; // Ask it to use authenticate using the Username and Password properties
 		$phpmailer->Port     = 25;
 		$phpmailer->Username = 'shubhankarsaxena10@gmail.com';
-		$phpmailer->Password = 'youcanneverbeme';
+		$phpmailer->Password = '';
 
 		$phpmailer->SMTPSecure = 'tls'; // Choose 'ssl' for SMTPS on port 465, or 'tls' for SMTP+STARTTLS on port 25 or 587
 	}
