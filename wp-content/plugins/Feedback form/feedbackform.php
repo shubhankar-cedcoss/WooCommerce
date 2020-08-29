@@ -70,15 +70,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 		$array['comments'] = sanitize_text_field( wp_unslash( $_POST['comments'] ) );
 
-
-
 		$user = get_current_user_id();
 
 		update_user_meta( $user, 'feedback', $array );
-		$name     = $_POST[$field1];
-		$email    = $_POST[$field2];
-		$phone    = $_POST[$field3];
-		$addresss = $_POST[$field4];
+		$name     = sanitize_text_field( wp_unslash( $_POST[ $field1 ] ) );
+		$email    = sanitize_text_field( wp_unslash( $_POST[ $field2 ] ) );
+		$phone    = sanitize_text_field( wp_unslash( $_POST[ $field3 ] ) );
+		$addresss = sanitize_text_field( wp_unslash( $_POST[ $field4 ] ) );
 		foreach ( $array as $k => $v ) {
 			if ( 1 === preg_match( '/name/', $k ) ) {
 				$name = isset( $name ) ? $name . ' ' . $v : $v;
@@ -94,20 +92,24 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 		}
 
-		//Retrieves information about the current site.
+		// Retrieves information about the current site.
 		$admin_email = get_bloginfo( 'admin_email' );
-		$msg         = $array['comments'];
-		$feedback    = 'Name:' . $name . '  Feedback:' . $msg;
-		$header      = array(
+		echo $admin_email;
+		$msg      = $array['comments'];
+		$feedback = 'Name:' . $name . '  Feedback:' . $msg;
+		$header   = array(
 			'From:' . $name . '<' . $email . '>',
 		);
 
-		//mail to admin
+		// mail to admin.
 		wp_mail( $admin_email, 'Feedback', $feedback, $header );
 
-		//mail to customer
+		// mail to customer.
 		wp_mail( $email, 'Confirmation', 'Hello ' . $name . ', Your Feedback has been submitted successfully.' );
 
+		//if ( isset( $_POST['submit'] ) ) {
+		// wc_add_notice( 'Thank you, Your Feedback has been submitted', 'success' );
+		//}
 		$output .= '<form action="" method="post">';
 		if ( 'yes' === $field1_2 ) {
 				$output .= '<label>' . $field1 . ':</label><br>
@@ -146,9 +148,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					</form>';
 
 		echo $output;
-		if ( isset( $_POST['submit'] ) ) {
-			wc_add_notice( 'Thank you, Your Feedback has been submitted', 'success' );
-		}
 
 	}
 	add_shortcode( 'feedback_form', 'custom_shortcode' );
@@ -164,7 +163,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		$phpmailer->SMTPAuth = true; // Ask it to use authenticate using the Username and Password properties
 		$phpmailer->Port     = 25;
 		$phpmailer->Username = 'shubhankarsaxena10@gmail.com';
-		$phpmailer->Password = '';
+		$phpmailer->Password = 'youcanneverbeme';
 
 		$phpmailer->SMTPSecure = 'tls'; // Choose 'ssl' for SMTPS on port 465, or 'tls' for SMTP+STARTTLS on port 25 or 587
 	}
